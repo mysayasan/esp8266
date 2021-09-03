@@ -6,13 +6,14 @@ const char *USER_SHA1 = "82C8058388F48C2C9B9A7685EC29C16375E74B71";
 const char *DEVICE_UUID = "8168b630-0221-11ec-9a03-0242ac130003";
 
 // Config WiFi
-const char *SSID = "mysayasan-WiFi-ext";
+// const char *SSID = "mysayasan-WiFi-ext";
+const char *SSID = "mysayasan";
 const char *WIFI_PASS = "miliafinayesha2013";
 
 // Config MQTT
 WiFiClient espClient;
 PubSubClient client(espClient);
-const char *mqtt_server = "192.168.0.69";
+const char *mqtt_server = "mysayasan.asuscomm.com";
 int mqtt_port = 1883;
 unsigned long msg_interval = 1000;
 unsigned long msg_previousMillis = 0;
@@ -20,7 +21,7 @@ unsigned long lastMsg = 0;
 #define MSG_BUFFER_SIZE (50)
 char msg[MSG_BUFFER_SIZE];
 int value = 0;
-String TOPIC;
+String TOPIC_ID;
 String TOPIC_CMD;
 String TOPIC_MSG;
 unsigned long wifi_previousMillis = 0;
@@ -34,9 +35,9 @@ struct Button
     uint32_t numberKeyPresses;
     bool pressed;
 };
-Button DOOR_01 = {"DOOR_01", 4, 0, false};
-Button DOOR_02 = {"DOOR_02", 5, 0, false};
-Button DOOR_03 = {"DOOR_03", 12, 0, false};
+Button DOOR_01 = {"DOOR_01", 14, 0, false};
+Button DOOR_02 = {"DOOR_02", 12, 0, false};
+Button DOOR_03 = {"DOOR_03", 15, 0, false};
 Button DOOR_01_OPEN_STAT = {"DOOR_01_OPEN_STAT", 13, 0, false};
 Button SIREN_01 = {"SIREN_01", 14, 0, false};
 Button LED_BUILTIN_BLUE = {"LED_BUILTIN_BLUE", 2, 0, false};
@@ -109,9 +110,9 @@ void callback(char *topic, byte *payload, unsigned int length)
         if (cmd == "1")
         {
             DOOR_01.numberKeyPresses += 1;
-            digitalWrite(DOOR_01.PIN, LOW);
+            digitalWrite(DOOR_01.PIN, HIGH);            
             delay(1000);
-            digitalWrite(DOOR_01.PIN, HIGH);
+            digitalWrite(DOOR_01.PIN, LOW);            
 
             topicmsg = TOPIC_MSG + "/door/1/toggle";
             msg = String(DOOR_01.numberKeyPresses);
@@ -124,9 +125,10 @@ void callback(char *topic, byte *payload, unsigned int length)
         if (cmd == "1")
         {
             DOOR_02.numberKeyPresses += 1;
-            digitalWrite(DOOR_02.PIN, LOW);
-            delay(1000);
             digitalWrite(DOOR_02.PIN, HIGH);
+            delay(1000);
+            digitalWrite(DOOR_02.PIN, LOW);
+            
 
             topicmsg = TOPIC_MSG + "/door/2/toggle";
             msg = String(DOOR_02.numberKeyPresses);
@@ -138,9 +140,9 @@ void callback(char *topic, byte *payload, unsigned int length)
         if (cmd == "1")
         {
             DOOR_03.numberKeyPresses += 1;
-            digitalWrite(DOOR_03.PIN, LOW);
+            digitalWrite(DOOR_03.PIN, HIGH);            
             delay(1000);
-            digitalWrite(DOOR_03.PIN, HIGH);
+            digitalWrite(DOOR_03.PIN, LOW);            
 
             topicmsg = TOPIC_MSG + "/door/3/toggle";
             msg = String(DOOR_03.numberKeyPresses);
@@ -196,10 +198,10 @@ void reconnect()
 
 void setupMQTT()
 {
-    TOPIC = String(USER_SHA1) + "/" + String(DEVICE_UUID);
-    TOPIC_CMD = TOPIC + "/" + "cmd";
+    TOPIC_ID = String(USER_SHA1) + "/" + String(DEVICE_UUID);
+    TOPIC_CMD = "cmd/" + TOPIC_ID;
     Serial.printf("topic cmd set to %s\n", TOPIC_CMD.c_str());
-    TOPIC_MSG = TOPIC + "/" + "msg";
+    TOPIC_MSG = "msg/" + TOPIC_ID;
     Serial.printf("topic msg set to %s\n", TOPIC_MSG.c_str());
     client.setServer(mqtt_server, mqtt_port);
     // set the callback function
@@ -225,8 +227,9 @@ void setupButton()
         digitalWrite(DOOR_03.PIN, HIGH);
     if (SIREN_01.pressed)
         digitalWrite(SIREN_01.PIN, HIGH);
-    // if (LED_BUILTIN_BLUE.pressed)
-    //     digitalWrite(LED_BUILTIN_BLUE.PIN, HIGH);
+    if (LED_BUILTIN_BLUE.pressed) {
+        digitalWrite(LED_BUILTIN_BLUE.PIN, HIGH);
+    }
 }
 
 void setup()
@@ -269,16 +272,16 @@ void loop()
     {
         if (!LED_BUILTIN_BLUE.pressed)
         {
-            Serial.printf("Blue in %s\n", String( DOOR_01_OPEN_STAT.pressed));
+            Serial.printf("Blue in %s\n", String(DOOR_01_OPEN_STAT.pressed));
             LED_BUILTIN_BLUE.pressed = true;
             digitalWrite(LED_BUILTIN_BLUE.PIN, HIGH);
         }
     }
     else
-    {        
+    {
         if (LED_BUILTIN_BLUE.pressed)
         {
-            Serial.printf("Blue out %s\n", String( DOOR_01_OPEN_STAT.pressed));
+            Serial.printf("Blue out %s\n", String(DOOR_01_OPEN_STAT.pressed));
             LED_BUILTIN_BLUE.pressed = false;
             digitalWrite(LED_BUILTIN_BLUE.PIN, LOW);
         }
