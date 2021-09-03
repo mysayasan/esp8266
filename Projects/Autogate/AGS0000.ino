@@ -35,12 +35,12 @@ struct Button
     uint32_t numberKeyPresses;
     bool pressed;
 };
-Button DOOR_01 = {"DOOR_01", 14, 0, false};
-Button DOOR_02 = {"DOOR_02", 12, 0, false};
-Button DOOR_03 = {"DOOR_03", 15, 0, false};
-Button DOOR_01_OPEN_STAT = {"DOOR_01_OPEN_STAT", 13, 0, false};
-Button SIREN_01 = {"SIREN_01", 14, 0, false};
-Button LED_BUILTIN_BLUE = {"LED_BUILTIN_BLUE", 2, 0, false};
+Button DOOR_01 = {"DOOR_01", 14, 0, true};
+Button DOOR_02 = {"DOOR_02", 12, 0, true};
+Button DOOR_03 = {"DOOR_03", 15, 0, true};
+Button DOOR_01_OPEN_STAT = {"DOOR_01_OPEN_STAT", 13, 0, true};
+Button SIREN_01 = {"SIREN_01", 14, 0, true};
+Button LED_BUILTIN_BLUE = {"LED_BUILTIN_BLUE", 2, 0, true};
 
 void setupWiFi()
 {
@@ -110,9 +110,9 @@ void callback(char *topic, byte *payload, unsigned int length)
         if (cmd == "1")
         {
             DOOR_01.numberKeyPresses += 1;
-            digitalWrite(DOOR_01.PIN, HIGH);            
+            digitalWrite(DOOR_01.PIN, LOW);
             delay(1000);
-            digitalWrite(DOOR_01.PIN, LOW);            
+            digitalWrite(DOOR_01.PIN, HIGH);
 
             topicmsg = TOPIC_MSG + "/door/1/toggle";
             msg = String(DOOR_01.numberKeyPresses);
@@ -125,10 +125,9 @@ void callback(char *topic, byte *payload, unsigned int length)
         if (cmd == "1")
         {
             DOOR_02.numberKeyPresses += 1;
-            digitalWrite(DOOR_02.PIN, HIGH);
-            delay(1000);
             digitalWrite(DOOR_02.PIN, LOW);
-            
+            delay(1000);
+            digitalWrite(DOOR_02.PIN, HIGH);
 
             topicmsg = TOPIC_MSG + "/door/2/toggle";
             msg = String(DOOR_02.numberKeyPresses);
@@ -140,9 +139,9 @@ void callback(char *topic, byte *payload, unsigned int length)
         if (cmd == "1")
         {
             DOOR_03.numberKeyPresses += 1;
-            digitalWrite(DOOR_03.PIN, HIGH);            
+            digitalWrite(DOOR_03.PIN, LOW);
             delay(1000);
-            digitalWrite(DOOR_03.PIN, LOW);            
+            digitalWrite(DOOR_03.PIN, HIGH);
 
             topicmsg = TOPIC_MSG + "/door/3/toggle";
             msg = String(DOOR_03.numberKeyPresses);
@@ -274,7 +273,7 @@ void loop()
         {
             Serial.printf("Blue in %s\n", String(DOOR_01_OPEN_STAT.pressed));
             LED_BUILTIN_BLUE.pressed = true;
-            digitalWrite(LED_BUILTIN_BLUE.PIN, HIGH);
+            digitalWrite(LED_BUILTIN_BLUE.PIN, LOW);
         }
     }
     else
@@ -283,7 +282,7 @@ void loop()
         {
             Serial.printf("Blue out %s\n", String(DOOR_01_OPEN_STAT.pressed));
             LED_BUILTIN_BLUE.pressed = false;
-            digitalWrite(LED_BUILTIN_BLUE.PIN, LOW);
+            digitalWrite(LED_BUILTIN_BLUE.PIN, HIGH);
         }
     }
 
