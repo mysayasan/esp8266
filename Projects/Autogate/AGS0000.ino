@@ -198,9 +198,9 @@ void reconnect()
 void setupMQTT()
 {
     TOPIC_ID = String(USER_SHA1) + "/" + String(DEVICE_UUID);
-    TOPIC_CMD = "cmd/" + TOPIC_ID;
+    TOPIC_CMD = TOPIC_ID + "/cmd";
     Serial.printf("topic cmd set to %s\n", TOPIC_CMD.c_str());
-    TOPIC_MSG = "msg/" + TOPIC_ID;
+    TOPIC_MSG = TOPIC_ID + "/msg";
     Serial.printf("topic msg set to %s\n", TOPIC_MSG.c_str());
     client.setServer(mqtt_server, mqtt_port);
     // set the callback function
