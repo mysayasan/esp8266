@@ -32,20 +32,20 @@ String TOPIC_MSG;
 unsigned long wifi_previousMillis = 0;
 unsigned long wifi_interval = 30000;
 
-// Config Button
-struct Button
+// Config Switch
+struct Switch
 {
     String btnName;
     const uint8_t PIN;
     uint32_t numberKeyPresses;
     bool pressed;
 };
-Button DOOR_01 = {"DOOR_01", 14, 0, true};
-Button DOOR_02 = {"DOOR_02", 12, 0, true};
-Button DOOR_03 = {"DOOR_03", 15, 0, true};
-Button DOOR_01_OPEN_STAT = {"DOOR_01_OPEN_STAT", 13, 0, true};
-Button SIREN_01 = {"SIREN_01", 14, 0, true};
-Button LED_BUILTIN_BLUE = {"LED_BUILTIN_BLUE", 2, 0, true};
+Switch SWITCH_01 = {"SWITCH_01", 14, 0, true};
+Switch SWITCH_02 = {"SWITCH_02", 12, 0, true};
+Switch SWITCH_03 = {"SWITCH_03", 15, 0, true};
+Switch SWITCH_01_OPEN_STAT = {"SWITCH_01_OPEN_STAT", 13, 0, true};
+Switch SIREN_01 = {"SIREN_01", 14, 0, true};
+Switch LED_BUILTIN_BLUE = {"LED_BUILTIN_BLUE", 2, 0, true};
 
 void connectWifi()
 {
@@ -114,13 +114,13 @@ void callback(char *topic, byte *payload, unsigned int length)
     {
         if (cmd == "1")
         {
-            DOOR_01.numberKeyPresses += 1;
-            digitalWrite(DOOR_01.PIN, LOW);
+            SWITCH_01.numberKeyPresses += 1;
+            digitalWrite(SWITCH_01.PIN, LOW);
             delay(1000);
-            digitalWrite(DOOR_01.PIN, HIGH);
+            digitalWrite(SWITCH_01.PIN, HIGH);
 
             topicmsg = TOPIC_MSG + "/door/1/toggle";
-            msg = String(DOOR_01.numberKeyPresses);
+            msg = String(SWITCH_01.numberKeyPresses);
         }
     }
 
@@ -129,13 +129,13 @@ void callback(char *topic, byte *payload, unsigned int length)
 
         if (cmd == "1")
         {
-            DOOR_02.numberKeyPresses += 1;
-            digitalWrite(DOOR_02.PIN, LOW);
+            SWITCH_02.numberKeyPresses += 1;
+            digitalWrite(SWITCH_02.PIN, LOW);
             delay(1000);
-            digitalWrite(DOOR_02.PIN, HIGH);
+            digitalWrite(SWITCH_02.PIN, HIGH);
 
             topicmsg = TOPIC_MSG + "/door/2/toggle";
-            msg = String(DOOR_02.numberKeyPresses);
+            msg = String(SWITCH_02.numberKeyPresses);
         }
     }
 
@@ -143,13 +143,13 @@ void callback(char *topic, byte *payload, unsigned int length)
     {
         if (cmd == "1")
         {
-            DOOR_03.numberKeyPresses += 1;
-            digitalWrite(DOOR_03.PIN, LOW);
+            SWITCH_03.numberKeyPresses += 1;
+            digitalWrite(SWITCH_03.PIN, LOW);
             delay(1000);
-            digitalWrite(DOOR_03.PIN, HIGH);
+            digitalWrite(SWITCH_03.PIN, HIGH);
 
             topicmsg = TOPIC_MSG + "/door/3/toggle";
-            msg = String(DOOR_03.numberKeyPresses);
+            msg = String(SWITCH_03.numberKeyPresses);
         }
     }
 
@@ -222,23 +222,23 @@ void setupMQTT()
     client.setCallback(callback);
 }
 
-void setupButton()
+void setupSwitches()
 {
     // Setup pin
-    pinMode(DOOR_01.PIN, OUTPUT);
-    pinMode(DOOR_02.PIN, OUTPUT);
-    // pinMode(DOOR_01_OPEN_STAT.PIN, INPUT_PULLUP);
+    pinMode(SWITCH_01.PIN, OUTPUT);
+    pinMode(SWITCH_02.PIN, OUTPUT);
+    // pinMode(SWITCH_01_OPEN_STAT.PIN, INPUT_PULLUP);
     pinMode(SIREN_01.PIN, OUTPUT);
-    pinMode(DOOR_01_OPEN_STAT.PIN, INPUT);
+    pinMode(SWITCH_01_OPEN_STAT.PIN, INPUT);
     pinMode(LED_BUILTIN_BLUE.PIN, OUTPUT);
-    // attachInterrupt(DOOR_01_OPEN_STAT.PIN, isr, RISING);
-    // pinMode(DOOR_03.PIN, OUTPUT);
-    if (DOOR_01.pressed)
-        digitalWrite(DOOR_01.PIN, HIGH);
-    if (DOOR_02.pressed)
-        digitalWrite(DOOR_02.PIN, HIGH);
-    if (DOOR_03.pressed)
-        digitalWrite(DOOR_03.PIN, HIGH);
+    // attachInterrupt(SWITCH_01_OPEN_STAT.PIN, isr, RISING);
+    // pinMode(SWITCH_03.PIN, OUTPUT);
+    if (SWITCH_01.pressed)
+        digitalWrite(SWITCH_01.PIN, HIGH);
+    if (SWITCH_02.pressed)
+        digitalWrite(SWITCH_02.PIN, HIGH);
+    if (SWITCH_03.pressed)
+        digitalWrite(SWITCH_03.PIN, HIGH);
     if (SIREN_01.pressed)
         digitalWrite(SIREN_01.PIN, HIGH);
     if (LED_BUILTIN_BLUE.pressed)
@@ -248,9 +248,9 @@ void setupButton()
 void setup()
 {
     Serial.begin(115200);    
-    setupMQTT();
-    setupButton();
+    setupMQTT();    
     connectWifi();
+    setupSwitches();
     delay(1500);
     //   client.setServer(mqtt_server, 1883);
     //   client.setCallback(callback);
@@ -280,19 +280,19 @@ void loop()
         reconnect();
     }
 
-    DOOR_01_OPEN_STAT.pressed = digitalRead(DOOR_01_OPEN_STAT.PIN) == 1;
-    if ((DOOR_01_OPEN_STAT.pressed) && (currentMillis - msg_previousMillis >= msg_interval))
+    SWITCH_01_OPEN_STAT.pressed = digitalRead(SWITCH_01_OPEN_STAT.PIN) == 1;
+    if ((SWITCH_01_OPEN_STAT.pressed) && (currentMillis - msg_previousMillis >= msg_interval))
     {
         String topicmsg = TOPIC_MSG + "/door/1/open";
         client.publish(topicmsg.c_str(), "1");
         msg_previousMillis = currentMillis;
     }
 
-    // if (DOOR_01_OPEN_STAT.pressed)
+    // if (SWITCH_01_OPEN_STAT.pressed)
     // {
     //     if (!LED_BUILTIN_BLUE.pressed)
     //     {
-    //         Serial.printf("Blue in %s\n", String(DOOR_01_OPEN_STAT.pressed));
+    //         Serial.printf("Blue in %s\n", String(SWITCH_01_OPEN_STAT.pressed));
     //         LED_BUILTIN_BLUE.pressed = true;
     //         digitalWrite(LED_BUILTIN_BLUE.PIN, LOW);
     //     }
@@ -301,7 +301,7 @@ void loop()
     // {
     //     if (LED_BUILTIN_BLUE.pressed)
     //     {
-    //         Serial.printf("Blue out %s\n", String(DOOR_01_OPEN_STAT.pressed));
+    //         Serial.printf("Blue out %s\n", String(SWITCH_01_OPEN_STAT.pressed));
     //         LED_BUILTIN_BLUE.pressed = false;
     //         digitalWrite(LED_BUILTIN_BLUE.PIN, HIGH);
     //     }
